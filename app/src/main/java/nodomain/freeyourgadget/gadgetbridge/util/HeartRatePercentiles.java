@@ -7,7 +7,7 @@ public final class HeartRatePercentiles {
     private final int[] sorted;
 
     public HeartRatePercentiles(List<Integer> readings, int minimum, int maximum) {
-        sorted = readings.stream().filter(value -> value != null && value > 0
+        sorted = readings.stream().filter(value -> value != null && value > 0 && value != 255
                 && value >= minimum && value <= maximum).mapToInt(Integer::intValue).sorted().toArray();
     }
 

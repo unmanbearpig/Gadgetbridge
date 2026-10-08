@@ -17,7 +17,7 @@ object WidgetColors {
     val worn: Int = Color.rgb(128, 128, 128)
 
     @ColorInt
-    val activity: Int = Color.GREEN
+    val activity: Int = Color.rgb(139, 220, 251)
 
     @ColorInt
     val exercise: Int = Color.rgb(255, 128, 0)
@@ -35,8 +35,8 @@ object WidgetColors {
     val awakeSleep: Int = Color.rgb(0xff, 0x86, 0x6e)
 
     @ColorInt
-    val distance: Int = Color.BLUE
+    val distance: Int = Color.rgb(139, 220, 251)
 
     @ColorInt
-    val activeTime: Int = Color.rgb(170, 0, 255)
+    val activeTime: Int = Color.rgb(139, 220, 251)
 }

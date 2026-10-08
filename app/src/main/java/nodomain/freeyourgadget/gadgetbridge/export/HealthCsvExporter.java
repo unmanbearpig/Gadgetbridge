@@ -26,7 +26,7 @@ public final class HealthCsvExporter {
         for (ActivitySample sample : ordered) {
             final int hr = sample.getHeartRate();
             writer.write(sample.getTimestamp() + "," + iso(sample.getTimestamp(), zone) + ","
-                    + (hr > 0 && hr >= minimumHeartRate && hr <= maximumHeartRate ? hr : "") + ","
+                    + (hr > 0 && hr != 255 && hr >= minimumHeartRate && hr <= maximumHeartRate ? hr : "") + ","
                     + measured(sample.getSteps()) + "," + measured(sample.getDistanceCm()) + ","
                     + measured(sample.getActiveCalories()) + "," + measured(sample.getRawIntensity()) + ","
                     + measured(sample.getRawKind()) + "\r\n");

@@ -82,7 +82,7 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
 
     @Override
     protected boolean isSingleDay() {
-        return false;
+        return TOTAL_DAYS == 1;
     }
 
     public static HeartRatePeriodFragment newInstance(int totalDays) {
@@ -179,13 +179,14 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
 
         int restingHeartRate = DATA_INVALID;
         if (supportsHeartRateRestingMeasurement()) {
-            restingHeartRate = device.getDeviceCoordinator()
-                    .getHeartRateRestingSampleProvider(device, db.getDaoSession())
-                    .getAllSamples(startTs * 1000L, endTs * 1000L)
-                    .stream()
-                    .max(Comparator.comparingLong(HeartRateSample::getTimestamp))
-                    .map(HeartRateSample::getHeartRate)
-                    .orElse(DATA_INVALID);
+            final var provider = device.getDeviceCoordinator()
+                    .getHeartRateRestingSampleProvider(device, db.getDaoSession());
+            if (provider != null) {
+                restingHeartRate = provider.getAllSamples(startTs * 1000L, endTs * 1000L).stream()
+                        .max(Comparator.comparingLong(HeartRateSample::getTimestamp))
+                        .map(HeartRateSample::getHeartRate)
+                        .orElse(DATA_INVALID);
+            }
         }
 
         final int maxHRGapMinutes = device.getDeviceCoordinator().getMaxHeartRateMeasurementsGapMinutes(device);

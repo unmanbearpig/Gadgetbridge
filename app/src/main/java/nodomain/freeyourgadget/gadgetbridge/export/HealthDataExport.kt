@@ -34,15 +34,24 @@ class HealthDataExport(private val fragment: Fragment) {
                 try {
                     val context = GBApplication.getContext()
                     withContext(Dispatchers.IO) {
+                        val zone = ZoneId.of(request.getString("zone"))
                         val samples = GBApplication.acquireDbReadOnly().use { db ->
-                            device.deviceCoordinator.getSampleProvider(device, db.daoSession)
-                                ?.getAllActivitySamplesHighRes(request.getInt("from"), request.getInt("through"))
+                            val provider = device.deviceCoordinator.getSampleProvider(device, db.daoSession)
                                 ?: error("Device does not provide activity samples")
+                            val rows = mutableListOf<nodomain.freeyourgadget.gadgetbridge.model.ActivitySample>()
+                            var day = Instant.ofEpochSecond(request.getInt("from").toLong()).atZone(zone)
+                            val through = request.getInt("through")
+                            while (day.toEpochSecond() <= through) {
+                                val next = day.toLocalDate().plusDays(1).atStartOfDay(zone)
+                                val end = minOf(through.toLong(), next.toEpochSecond() - 1).toInt()
+                                rows.addAll(provider.getAllActivitySamplesHighRes(day.toEpochSecond().toInt(), end))
+                                day = next
+                            }
+                            rows
                         }
                         val output = context.contentResolver.openOutputStream(uri, "wt")
                             ?: error("Cannot open destination")
                         output.bufferedWriter(Charsets.UTF_8).use { writer ->
-                            val zone = ZoneId.of(request.getString("zone"))
                             if (request.getBoolean("summary")) {
                                 HealthCsvExporter.writePercentiles(writer, samples, request.getInt("from"),
                                     request.getInt("through"), request.getInt("minimum"), request.getInt("maximum"), zone)

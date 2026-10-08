@@ -21,7 +21,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300sp">
+            android:layout_height="260dp">
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/heart_rate_line_chart"
@@ -50,6 +50,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:cornerRadius="3dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:text="@string/health_export_samples" />
@@ -58,6 +59,7 @@
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:cornerRadius="3dp"
                 android:layout_weight="1"
                 android:text="@string/health_export_percentiles" />
         </LinearLayout>

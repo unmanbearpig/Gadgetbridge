@@ -22,6 +22,9 @@ public class HeartRatePercentilesTest {
         assertEquals(2, stats.getCount());
         assertEquals(115, stats.getPercentile(50), 0.00001);
     }
+    @Test public void deviceSentinelIsInvalidEvenWithWideChartBounds() {
+        assertEquals(1, new HeartRatePercentiles(Arrays.asList(72, 255), 0, 300).getCount());
+    }
     @Test public void handlesEmptySingletonAndRepeatedReadings() {
         assertTrue(Double.isNaN(new HeartRatePercentiles(Collections.emptyList(), 10, 250).getPercentile(50)));
         assertEquals(72, new HeartRatePercentiles(Collections.singletonList(72), 10, 250).getPercentile(95), 0);
