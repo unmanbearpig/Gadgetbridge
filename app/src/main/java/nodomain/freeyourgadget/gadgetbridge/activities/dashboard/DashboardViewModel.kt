@@ -63,7 +63,12 @@ class DashboardViewModel : ViewModel() {
         _state.value = layout.associate { it.instanceId to WidgetState.Loading }
 
         val timeTo = (day.timeInMillis / 1000L).toInt()
-        val timeFrom = DateTimeUtils.shiftDays(timeTo, -1)
+        val start = day.clone() as Calendar
+        start.set(Calendar.HOUR_OF_DAY, 0)
+        start.set(Calendar.MINUTE, 0)
+        start.set(Calendar.SECOND, 0)
+        start.set(Calendar.MILLISECOND, 0)
+        val timeFrom = (start.timeInMillis / 1000L).toInt()
         val query = DashboardQuery(timeFrom, timeTo)
 
         refreshJob = viewModelScope.launch(Dispatchers.IO) {

@@ -174,6 +174,11 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
                 true
             }
 
+            R.id.dashboard_export -> {
+                startActivity(Intent(requireActivity(), DataManagementActivity::class.java))
+                true
+            }
+
             R.id.dashboard_settings -> {
                 startActivity(Intent(requireActivity(), DashboardPreferencesActivity::class.java))
                 true
@@ -210,7 +215,7 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
         val deviceList = prefs.getStringSet("dashboard_devices_multiselect", HashSet())
         val timestamp = (day.timeInMillis / 1000L).toInt()
 
-        adapter.cardsEnabled = prefs.getBoolean("dashboard_cards_enabled", true)
+        adapter.cardsEnabled = prefs.getBoolean("dashboard_cards_enabled", false)
         adapter.dashboardShowAllDevices = showAllDevices
         adapter.dashboardDeviceList = deviceList
         adapter.timestamp = timestamp

@@ -46,7 +46,8 @@ public class GaugeDrawer {
                 width,
                 Math.round(width * 0.075f),
                 color,
-                value
+                value,
+                MaterialColors.getColor(gaugeBar.getContext(), R.attr.gauge_track, Color.rgb(70, 80, 94))
         ));
     }
 
@@ -57,26 +58,21 @@ public class GaugeDrawer {
      * @param filledFactor Factor between 0 and 1 that determines the amount of the gauge that should be filled
      * @return Bitmap containing the gauge
      */
-    private Bitmap drawSimpleGaugeInternal(final int width, final int barWidth, @ColorInt final int filledColor, final float filledFactor) {
-        final int height = width / 2;
-        final int barMargin = (int) Math.ceil(barWidth / 2f);
-
-        final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    private Bitmap drawSimpleGaugeInternal(final int width, final int barWidth,
+                                           @ColorInt final int filledColor, final float filledFactor,
+                                           @ColorInt final int trackColor) {
+        final Bitmap bitmap = Bitmap.createBitmap(width, barWidth * 2, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(barWidth * 0.75f);
-        paint.setColor(color_unknown);
-        canvas.drawArc(barMargin, barMargin, width - barMargin, width - barMargin, 180 + 180 * filledFactor, 180 - 180 * filledFactor, false, paint);
-
-        if (filledFactor >= 0) {
-            paint.setStrokeWidth(barWidth);
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(trackColor);
+        final float top = barWidth / 2f;
+        final float bottom = top + barWidth;
+        canvas.drawRoundRect(0, top, width, bottom, barWidth / 4f, barWidth / 4f, paint);
+        if (Float.isFinite(filledFactor) && filledFactor > 0) {
             paint.setColor(filledColor);
-            canvas.drawArc(barMargin, barMargin, width - barMargin, width - barMargin, 180, 180 * filledFactor, false, paint);
+            canvas.drawRoundRect(0, top, width * Math.min(1, filledFactor), bottom,
+                    barWidth / 4f, barWidth / 4f, paint);
         }
-
         return bitmap;
     }
 
@@ -100,127 +96,36 @@ public class GaugeDrawer {
             return;
         }
 
-        final int width = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                150,
-                GBApplication.getContext().getResources().getDisplayMetrics()
-        );
-
-        final int barWidth = Math.round(width * 0.075f);
-
-        final int height = width / 2;
-        final int barMargin = (int) Math.ceil(barWidth / 2f);
-
+        final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150,
+                gaugeBar.getResources().getDisplayMetrics());
+        final int barWidth = Math.max(2, Math.round(width * 0.06f));
+        final int height = barWidth * 2;
         final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bitmap);
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeCap(Paint.Cap.BUTT);
-        paint.setStrokeWidth(barWidth);
-
-        // Draw the empty gauge
-        paint.setStrokeWidth(barWidth * 0.75f);
-        paint.setColor(color_unknown);
-        canvas.drawArc(barMargin, barMargin, width - barMargin, width - barMargin, 180, 180, false, paint);
-        paint.setStrokeWidth(barWidth);
-
-        final double cornersGapRadians = Math.asin((width * 0.055f) / (double) height);
-        final double cornersGapFactor = cornersGapRadians / Math.PI;
-
-        // Pre-calculate cumulative angles for each segment
-        final float[] cumulativeAngles = new float[segments.length];
-        float cumulativeSum = 0;
+        final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        final float top = barWidth / 2f;
+        paint.setColor(MaterialColors.getColor(gaugeBar.getContext(), R.attr.gauge_track, Color.rgb(70, 80, 94)));
+        canvas.drawRect(0, top, width, top + barWidth, paint);
+        float position = 0;
+        final float marker = Float.isFinite(value) ? Math.max(0, Math.min(1, value)) : -1;
         for (int i = 0; i < segments.length; i++) {
-            cumulativeAngles[i] = cumulativeSum;
-            cumulativeSum += segments[i];
-        }
-
-        // Find the last non-zero segment index
-        int lastSegmentIndex = -1;
-        for (int i = segments.length - 1; i >= 0; i--) {
-            if (segments[i] > 0) {
-                lastSegmentIndex = i;
-                break;
-            }
-        }
-
-        int dotColor = 0;
-        // Draw segments in reverse order (from last to first) so BUTT cap overwrites the start of the last segment
-        for (int i = segments.length - 1; i >= 0; i--) {
-            if (segments[i] == 0) {
-                continue;
-            }
-
-            // Use ROUND cap only for the last segment, BUTT for others
-            paint.setStrokeCap(i == lastSegmentIndex ? Paint.Cap.ROUND : Paint.Cap.BUTT);
+            if (!Float.isFinite(segments[i]) || segments[i] <= 0) continue;
+            final float end = Math.min(1, position + segments[i]);
             paint.setColor(colors[i]);
-            paint.setStrokeWidth(barWidth);
-
-            if (value < 0 || (value >= cumulativeAngles[i] && value <= cumulativeAngles[i] + segments[i])) {
-                dotColor = colors[i];
-            } else {
-                if (fadeOutsideDot) {
-                    paint.setColor(colors[i] - 0xB0000000);
-                } else {
-                    paint.setStrokeWidth(barWidth * 0.75f);
-                }
+            if (fadeOutsideDot && value >= 0 && (marker < position || marker > end)) paint.setAlpha(90);
+            final float gap = gapBetweenSegments ? width * 0.008f : 0;
+            if (end * width > position * width + gap) {
+                canvas.drawRect(position * width, top, end * width - gap, top + barWidth, paint);
             }
-
-            float startAngleDegrees = 180 + cumulativeAngles[i] * 180;
-            float sweepAngleDegrees = segments[i] * 180;
-
-            if (value >= 0) {
-                // Do not draw to the end if it will be overlapped by the dot
-                if (i == 0 && value <= cornersGapFactor) {
-                    startAngleDegrees += (float) Math.toDegrees(cornersGapRadians);
-                    sweepAngleDegrees -= (float) Math.toDegrees(cornersGapRadians);
-                } else if (i == segments.length - 1 && value >= 1 - cornersGapFactor) {
-                    sweepAngleDegrees -= (float) Math.toDegrees(cornersGapRadians);
-                }
-            }
-
-            if (gapBetweenSegments) {
-                if (i + 1 < segments.length) {
-                    sweepAngleDegrees -= 2;
-                }
-            }
-
-            canvas.drawArc(
-                    barMargin,
-                    barMargin,
-                    width - barMargin,
-                    width - barMargin,
-                    startAngleDegrees,
-                    sweepAngleDegrees,
-                    false,
-                    paint
-            );
+            paint.setAlpha(255);
+            position = end;
         }
-
-        if (value >= 0) {
-            // Prevent the dot from going outside the widget in the extremities
-            final float angleRadians = (float) normalize(value, 0, 1, cornersGapRadians, Math.toRadians(180) - cornersGapRadians);
-
-            paint.setColor(Color.TRANSPARENT);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-
-            // In the corners the circle is slightly offset, so adjust it slightly
-            final float widthAdjustment = width * 0.04f * (float) normalize(Math.abs(value - 0.5d), 0, 0.5d);
-
-            final float x = ((width - (barWidth / 2f) - widthAdjustment) / 2f) * (float) Math.cos(angleRadians);
-            final float y = (height - (barWidth / 2f)) * (float) Math.sin(angleRadians);
-
-            // Draw hole
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle((width / 2f) - x, height - y, barMargin * 1.6f, paint);
-
-            // Draw dot
-            paint.setColor(dotColor);
-            paint.setXfermode(null);
-            canvas.drawCircle((width / 2f) - x, height - y, barMargin, paint);
+        if (Float.isFinite(value) && value >= 0) {
+            final float x = Math.max(2, Math.min(width - 2, marker * width));
+            paint.setColor(GBApplication.getTextColor(gaugeBar.getContext()));
+            paint.setStrokeWidth(Math.max(2, width * 0.012f));
+            canvas.drawLine(x, 0, x, height, paint);
         }
-
         gaugeBar.setImageBitmap(bitmap);
     }
 

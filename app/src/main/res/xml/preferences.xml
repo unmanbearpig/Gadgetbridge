@@ -216,7 +216,7 @@
             app:singleLineTitle="false" />
 
         <ListPreference
-            android:defaultValue="@string/pref_theme_value_light"
+            android:defaultValue="@string/pref_theme_value_dark"
             android:entries="@array/pref_theme_options"
             android:entryValues="@array/pref_theme_values"
             android:icon="@drawable/ic_contrast"
@@ -224,7 +224,7 @@
             android:title="@string/pref_title_theme"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:icon="@drawable/ic_dark_mode"
             android:key="pref_key_theme_amoled_black"
             android:layout="@layout/preference_checkbox"

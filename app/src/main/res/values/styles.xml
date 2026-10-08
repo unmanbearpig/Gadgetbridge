@@ -218,6 +218,15 @@
 
     <!-- black theme -->
     <style name="GadgetbridgeThemeBlack" parent="GadgetbridgeThemeDark">
+        <item name="colorSurface">@android:color/black</item>
+        <item name="colorSurfaceContainerLowest">@android:color/black</item>
+        <item name="colorSurfaceContainerLow">@android:color/black</item>
+        <item name="colorSurfaceContainer">@android:color/black</item>
+        <item name="colorSurfaceContainerHigh">@android:color/black</item>
+        <item name="colorSurfaceContainerHighest">@android:color/black</item>
+        <item name="colorSurfaceVariant">@android:color/black</item>
+        <item name="gauge_track">@color/row_separator_dark</item>
+        <item name="bar_shade">@null</item>
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:colorBackground">@android:color/black</item>
         <item name="toolbar_bg">@android:color/black</item>
@@ -746,10 +755,10 @@
         <item name="subtab_pill_on">#00544D</item>
     </style>
     <style name="ThemeOverlay.App.Accent.Cyan.Dark" parent="">
-        <item name="tab_pill">#22C2F0</item>
+        <item name="tab_pill">#8BDCFB</item>
         <item name="tab_pill_on">#001A24</item>
-        <item name="subtab_pill">#0D2E38</item>
-        <item name="subtab_pill_on">#6AD8F7</item>
+        <item name="subtab_pill">#000000</item>
+        <item name="subtab_pill_on">#8BDCFB</item>
     </style>
     <style name="ThemeOverlay.App.Accent.Cyan.Light" parent="">
         <item name="tab_pill">#006E94</item>

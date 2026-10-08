@@ -50,6 +50,8 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
 import nodomain.freeyourgadget.gadgetbridge.util.Accumulator;
+import nodomain.freeyourgadget.gadgetbridge.util.HeartRatePercentiles;
+import nodomain.freeyourgadget.gadgetbridge.export.HealthDataExport;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.TimeWeightedAverageAccumulator;
@@ -74,6 +76,9 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
     private LinearLayout hrStatsContainer;
     private LineChart hrLineChart;
     private int TOTAL_DAYS;
+    private HealthDataExport csvExport;
+    private static final int[] PERCENTILES = {5, 25, 50, 75, 95};
+    private int[] percentileColors;
 
     @Override
     protected boolean isSingleDay() {
@@ -91,6 +96,7 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        csvExport = new HealthDataExport(this);
         TOTAL_DAYS = getArguments() != null ? getArguments().getInt("totalDays") : 0;
     }
 
@@ -104,11 +110,25 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         hrLineChart = rootView.findViewById(R.id.heart_rate_line_chart);
         hrStatsContainer = rootView.findViewById(R.id.hr_stats_container);
 
+        rootView.findViewById(R.id.hr_export_samples).setOnClickListener(v -> exportCsv(false));
+        rootView.findViewById(R.id.hr_export_percentiles).setOnClickListener(v -> exportCsv(true));
         setupChart();
         refresh();
         setupLegend(hrLineChart);
 
         return rootView;
+    }
+
+    private void exportCsv(boolean summary) {
+        final Pair<Integer, Integer> range = getStartAndEndTS();
+        csvExport.launch(getChartsHost().getDevice(), range.getKey(), range.getValue(), summary);
+    }
+
+    private HeartRatePercentiles percentiles(List<? extends ActivitySample> samples) {
+        final List<Integer> readings = new ArrayList<>(samples.size());
+        for (ActivitySample sample : samples) readings.add(sample.getHeartRate());
+        final HeartRateUtils utils = HeartRateUtils.getInstance();
+        return new HeartRatePercentiles(readings, utils.getMinHeartRate(), utils.getMaxHeartRate());
     }
 
     public boolean supportsHeartRateRestingMeasurement() {
@@ -136,6 +156,17 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         } else {
             HEARTRATE_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate);
         }
+        percentileColors = new int[]{
+                ContextCompat.getColor(requireContext(), R.color.hr_percentile_5),
+                ContextCompat.getColor(requireContext(), R.color.hr_percentile_25),
+                ContextCompat.getColor(requireContext(), R.color.hr_percentile_50),
+                ContextCompat.getColor(requireContext(), R.color.hr_percentile_75),
+                ContextCompat.getColor(requireContext(), R.color.hr_percentile_95)
+        };
+        // Keep percentile lines readable when the user chooses the light theme.
+        if (!GBApplication.isDarkThemeEnabled()) percentileColors = new int[]{
+                Color.rgb(25, 75, 95), Color.rgb(30, 105, 130), Color.rgb(0, 110, 148),
+                Color.rgb(55, 125, 145), Color.rgb(60, 70, 80)};
         HEARTRATE_MIN_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate_minimum);
         HEARTRATE_MAX_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate_maximum);
         HEARTRATE_RESTING_COLOR = ContextCompat.getColor(requireContext(), R.color.chart_heartrate_resting);
@@ -198,6 +229,8 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         hrLineChart.setBackgroundColor(BACKGROUND_COLOR);
         hrLineChart.getDescription().setTextColor(DESCRIPTION_COLOR);
         hrLineChart.getDescription().setEnabled(false);
+        hrLineChart.setNoDataText(getString(R.string.no_data));
+        hrLineChart.setNoDataTextColor(TEXT_COLOR);
 
         XAxis x = hrLineChart.getXAxis();
         x.setDrawLabelsEnabled(true);
@@ -226,39 +259,18 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
 
     @Override
     protected void setupLegend(Chart<?> chart) {
-        List<LegendEntry> legendEntries = new ArrayList<>(4);
-
+        List<LegendEntry> legendEntries = new ArrayList<>();
         if (TOTAL_DAYS == 1) {
-            LegendEntry hrEntry = new LegendEntry();
-            hrEntry.setLabel(getTitle());
-            hrEntry.setFormColor(HEARTRATE_COLOR);
-            legendEntries.add(hrEntry);
-        } else {
-            LegendEntry hrMinEntry = new LegendEntry();
-            hrMinEntry.setLabel(getString(R.string.hr_minimum));
-            hrMinEntry.setFormColor(HEARTRATE_MIN_COLOR);
-            legendEntries.add(hrMinEntry);
+            LegendEntry raw = new LegendEntry();
+            raw.setLabel(getTitle());
+            raw.setFormColor(HEARTRATE_COLOR);
+            legendEntries.add(raw);
         }
-
-        if (supportsHeartRateRestingMeasurement() && TOTAL_DAYS != 1) {
-            LegendEntry hrRestingEntry = new LegendEntry();
-            hrRestingEntry.setLabel(getString(R.string.hr_resting));
-            hrRestingEntry.setFormColor(HEARTRATE_RESTING_COLOR);
-            legendEntries.add(hrRestingEntry);
-        }
-
-        if (GBApplication.getPrefs().getBoolean("charts_show_average", true)) {
-            LegendEntry hrAverageEntry = new LegendEntry();
-            hrAverageEntry.setLabel(getString(R.string.hr_average));
-            hrAverageEntry.setFormColor(TOTAL_DAYS != 1 ? HEARTRATE_COLOR : Color.RED);
-            legendEntries.add(hrAverageEntry);
-        }
-
-        if (TOTAL_DAYS != 1) {
-            LegendEntry hrMaxEntry = new LegendEntry();
-            hrMaxEntry.setLabel(getString(R.string.hr_maximum));
-            hrMaxEntry.setFormColor(HEARTRATE_MAX_COLOR);
-            legendEntries.add(hrMaxEntry);
+        for (int i = 0; i < PERCENTILES.length; i++) {
+            LegendEntry entry = new LegendEntry();
+            entry.setLabel(getString(R.string.hr_percentile_label, PERCENTILES[i]));
+            entry.setFormColor(percentileColors[i]);
+            legendEntries.add(entry);
         }
 
         chart.getLegend().setEntries(legendEntries);
@@ -269,10 +281,10 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
     protected LineDataSet createHeartRateDataSet(final List<Entry> values, int color) {
         LineDataSet dataSet = new LineDataSet(values, "Heart Rate");
         dataSet.setLineWidth(1.5f);
-        dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        dataSet.setMode(LineDataSet.Mode.LINEAR);
         dataSet.setCubicIntensity(0.1f);
         dataSet.setDrawCirclesEnabled(false);
-        dataSet.setDrawValuesEnabled(true);
+        dataSet.setDrawValuesEnabled(false);
         dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
         dataSet.setColor(color);
         dataSet.setValueTextColor(TEXT_COLOR);
@@ -287,11 +299,19 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         return Pair.of(startTs, endTs);
     }
 
-    private void setStatistics(int average, int minimum, int maximum, int resting) {
+    private void setStatistics(int average, int minimum, int maximum, int resting, HeartRatePercentiles percentiles) {
         hrStatsContainer.removeAllViews();
 
         final WorkoutValueFormatter workoutValueFormatter = new WorkoutValueFormatter();
         final List<StatTileData> stats = new ArrayList<>();
+
+        for (int percentile : PERCENTILES) {
+            stats.add(new StatTileData(percentiles.getCount() == 0 ? getString(R.string.stats_empty_value)
+                    : workoutValueFormatter.formatValue(percentiles.getPercentile(percentile), UNIT_BPM),
+                    getString(R.string.hr_percentile_label, percentile)));
+        }
+        stats.add(new StatTileData(java.text.NumberFormat.getIntegerInstance().format(percentiles.getCount()),
+                getString(R.string.hr_valid_samples)));
 
         stats.add(new StatTileData(
                 minimum > 0 ? workoutValueFormatter.formatValue(minimum, UNIT_BPM) : getString(R.string.stats_empty_value),
@@ -317,6 +337,10 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
 
         StatTileGridUtilKt.addStatTileGrid(hrStatsContainer, requireContext(), stats, 0);
 
+        hrLineChart.getAxisLeft().setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
+        hrLineChart.getAxisRight().setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
+        hrLineChart.getAxisLeft().setAxisMaximum(HeartRateUtils.getInstance().getMaxHeartRate());
+        hrLineChart.getAxisRight().setAxisMaximum(HeartRateUtils.getInstance().getMaxHeartRate());
         if (minimum > 0) {
             hrLineChart.getAxisLeft().setAxisMinimum(Math.max(minimum - 30, 0));
             hrLineChart.getAxisRight().setAxisMinimum(Math.max(minimum - 30, 0));
@@ -389,26 +413,24 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
             lineDataSets.add(createHeartRateDataSet(lineEntries, HEARTRATE_COLOR));
         }
 
-        setStatistics(data.average, data.minimum, data.maximum, data.restingHeartRate);
+        setStatistics(data.average, data.minimum, data.maximum, data.restingHeartRate, percentiles(data.samples));
 
         hrLineChart.setData(new LineData(lineDataSets));
         hrLineChart.getAxisLeft().removeAllLimitLines();
 
-        if (data.average > 0 && GBApplication.getPrefs().getBoolean("charts_show_average", true)) {
-            final LimitLine averageLine = new LimitLine(data.average, "");
-            averageLine.setLineWidth(1.5f);
-            averageLine.enableDashedLine(15f, 10f, 0f);
-            averageLine.setLineColor(Color.RED);
-            hrLineChart.getAxisLeft().addLimitLine(averageLine);
+        hrLineChart.getAxisRight().removeAllLimitLines();
+        final HeartRatePercentiles stats = percentiles(data.samples);
+        if (stats.getCount() > 0) {
+            for (int i = 0; i < PERCENTILES.length; i++) {
+                final LimitLine line = new LimitLine((float) stats.getPercentile(PERCENTILES[i]),
+                        getString(R.string.hr_percentile_label, PERCENTILES[i]));
+                line.setLineWidth(1f);
+                line.enableDashedLine(8f, 6f, 0f);
+                line.setLineColor(percentileColors[i]);
+                line.setTextColor(TEXT_COLOR);
+                hrLineChart.getAxisRight().addLimitLine(line);
+            }
         }
-
-        //if (data.restingHeartRate > 0) {
-        //    final LimitLine restingLine = new LimitLine(data.restingHeartRate);
-        //    restingLine.setLineWidth(1.5f);
-        //    restingLine.enableDashedLine(15f, 10f, 0f);
-        //    restingLine.setLineColor(HEARTRATE_RESTING_COLOR);
-        //    hrLineChart.getAxisLeft().addLimitLine(restingLine);
-        //}
     }
 
     private void setMultipleDaysData(HeartRatePeriodData data, int startTs, int endTs) {
@@ -418,28 +440,20 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         final Accumulator maxAccumulator = new Accumulator();
         final Accumulator restingAccumulator = new Accumulator();
 
-        final ArrayList<Entry> avgLineData = new ArrayList<>();
-        final ArrayList<Entry> minLineData = new ArrayList<>();
-        final ArrayList<Entry> maxLineData = new ArrayList<>();
-        final ArrayList<Entry> restingLineData = new ArrayList<>();
 
         for (int i = 0; i < samples.size(); i++) {
             final HeartRateData hrData = samples.get(i);
             if (hrData.average > 0) {
                 avgAccumulator.add(hrData.average);
-                avgLineData.add(new Entry<>(i, hrData.average, null, null));
             }
             if (hrData.minimum > 0) {
                 minAccumulator.add(hrData.minimum);
-                minLineData.add(new Entry<>(i, hrData.minimum, null, null));
             }
             if (hrData.maximum > 0) {
                 maxAccumulator.add(hrData.maximum);
-                maxLineData.add(new Entry<>(i, hrData.maximum, null, null));
             }
             if (hrData.restingHeartRate > 0) {
                 restingAccumulator.add(hrData.restingHeartRate);
-                restingLineData.add(new Entry<>(i, hrData.restingHeartRate, null, null));
             }
         }
 
@@ -457,15 +471,32 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         final int minimum = minAccumulator.getCount() > 0 ? (int) Math.round(minAccumulator.getMin()) : DATA_INVALID;
         final int maximum = maxAccumulator.getCount() > 0 ? (int) Math.round(maxAccumulator.getMax()) : DATA_INVALID;
         final int restingAvg = restingAccumulator.getCount() > 0 ? (int) Math.round(restingAccumulator.getAverage()) : DATA_INVALID;
-        setStatistics(average, minimum, maximum, restingAvg);
+        final List<ActivitySample> allSamples = new ArrayList<>();
+        for (HeartRateData day : samples) allSamples.addAll(day.samples);
+        setStatistics(average, minimum, maximum, restingAvg, percentiles(allSamples));
 
         List<ILineDataSet<?>> dataSets = new ArrayList<>();
-        if (GBApplication.getPrefs().getBoolean("charts_show_average", true)) {
-            dataSets.add(createHeartRateDataSet(avgLineData, HEARTRATE_COLOR));
+        hrLineChart.getAxisLeft().removeAllLimitLines();
+        hrLineChart.getAxisRight().removeAllLimitLines();
+        final List<HeartRatePercentiles> daily = new ArrayList<>();
+        for (HeartRateData day : samples) daily.add(percentiles(day.samples));
+        for (int p = 0; p < PERCENTILES.length; p++) {
+            List<Entry> entries = new ArrayList<>();
+            for (int day = 0; day <= daily.size(); day++) {
+                if (day == daily.size() || daily.get(day).getCount() == 0) {
+                    if (!entries.isEmpty()) {
+                        final LineDataSet set = createHeartRateDataSet(entries, percentileColors[p]);
+                        set.setDrawCirclesEnabled(true);
+                        set.setCircleColor(percentileColors[p]);
+                        set.setCircleRadius(2f);
+                        dataSets.add(set);
+                        entries = new ArrayList<>();
+                    }
+                } else {
+                    entries.add(new Entry<>(day, (float) daily.get(day).getPercentile(PERCENTILES[p]), null, null));
+                }
+            }
         }
-        dataSets.add(createHeartRateDataSet(minLineData, HEARTRATE_MIN_COLOR));
-        dataSets.add(createHeartRateDataSet(maxLineData, HEARTRATE_MAX_COLOR));
-        dataSets.add(createHeartRateDataSet(restingLineData, HEARTRATE_RESTING_COLOR));
 
         hrLineChart.setData(new LineData(dataSets));
     }

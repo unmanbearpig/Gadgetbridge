@@ -42,6 +42,9 @@ abstract class GaugeWidget<D> : GBWidget<D> {
     final override fun bind(view: View, config: WidgetConfig, data: D) {
         view.findViewById<TextView>(R.id.gauge_label).text = config.title(view.context, this)
         val gaugeValue = view.findViewById<TextView>(R.id.gauge_value)
+        gaugeValue.setTextColor(nodomain.freeyourgadget.gadgetbridge.GBApplication.getTextColor(view.context))
+        view.findViewById<TextView>(R.id.gauge_label).setTextColor(
+            nodomain.freeyourgadget.gadgetbridge.GBApplication.getSecondaryTextColor(view.context))
         val gaugeBar = view.findViewById<ImageView>(R.id.gauge_bar)
         draw(view.context, gaugeValue, gaugeBar, data)
         shrinkUnits(gaugeValue)

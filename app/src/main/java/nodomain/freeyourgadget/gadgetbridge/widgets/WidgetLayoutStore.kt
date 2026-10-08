@@ -31,8 +31,8 @@ object WidgetLayoutStore {
      * The default widgets, in order.
      */
     private val DEFAULT_ORDER = listOf(
-        "today",
-        "goals",
+        "hr_history",
+        "activity_history",
         "steps",
         "distance",
         "activetime",
@@ -57,7 +57,15 @@ object WidgetLayoutStore {
 
         return try {
             val entries: List<LayoutEntry>? = gson.fromJson(json, listType)
-            entries.orEmpty().map { WidgetInstance(it.id, it.type, it.cols) }
+            val migrated = entries.orEmpty().map {
+                when (it.type) {
+                    "today" -> it.copy(type = "hr_history", cols = 2)
+                    "goals" -> it.copy(type = "activity_history", cols = 2)
+                    else -> it
+                }
+            }
+            if (migrated != entries) sharedPreferences().edit { putString(PREF_LAYOUT, gson.toJson(migrated)) }
+            migrated.map { WidgetInstance(it.id, it.type, it.cols) }
         } catch (e: Exception) {
             LOG.error("Failed to parse widget layout, treating as empty", e)
             emptyList()
@@ -184,6 +192,7 @@ object WidgetLayoutStore {
             val columns = when (typeId) {
                 "today" -> if (prefs.getBoolean("dashboard_widget_today_2columns", true)) 2 else 1
                 "goals" -> if (prefs.getBoolean("dashboard_widget_goals_2columns", true)) 2 else 1
+                "hr_history", "activity_history" -> 2
                 else -> 1
             }
             LayoutEntry(id = typeId, type = typeId, cols = columns)

@@ -10,6 +10,10 @@
         app:iconTint="?attr/actionmenu_icon_color"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/dashboard_export"
+        android:title="@string/health_export_all"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/dashboard_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/dashboard_settings"

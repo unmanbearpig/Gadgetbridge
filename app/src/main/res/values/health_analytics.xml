@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hr_percentile_label">P%1$d</string>
+    <string name="hr_valid_samples">HR samples</string>
+    <string name="health_export_samples">Export samples</string>
+    <string name="health_export_percentiles">Export percentiles</string>
+    <string name="health_export_all">Export / backup</string>
+    <string name="health_export_success">Saved CSV</string>
+    <string name="health_export_failed">Could not save CSV: %1$s</string>
+    <string name="dashboard_hr_history">Heart rate</string>
+    <string name="dashboard_activity_history">Hourly steps</string>
+    <string name="dashboard_hr_percentiles">P50 %1$s · P95 %2$s bpm</string>
+    <color name="hr_percentile_5">#4BA6C9</color>
+    <color name="hr_percentile_25">#64C2E5</color>
+    <color name="hr_percentile_50">#8BDCFB</color>
+    <color name="hr_percentile_75">#C6ECFB</color>
+    <color name="hr_percentile_95">#FFFFFF</color>
+</resources>

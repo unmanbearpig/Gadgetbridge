@@ -29,7 +29,7 @@ Use the existing Android UI stack and chart library. Preserve device support and
 
 - Report P5, P25, P50, P75, and P95 in bpm, with valid sample count.
 - Calculate sample-based percentiles using linear interpolation on sorted valid observations. Exclude device sentinel values and missing readings according to existing heart rate validity rules.
-- Daily statistics use the selected local day. Weekly and monthly statistics use the selected local calendar range and expose daily percentile trends where the existing chart structure permits.
+- Daily statistics use the selected local day. Weekly and monthly statistics preserve Gadgetbridge's existing trailing 7-day and 30-day ranges ending on the selected local day and expose daily percentile trends where the existing chart structure permits.
 - Empty periods show an empty state, never fabricated zero bpm statistics. Keep gaps in time series.
 - Provide CSV export from the health charts with timestamps and recorded values, plus percentile summaries for the same selected range. Retain existing database/ZIP and workout exports and make the full export screen easy to reach.
 - Use Android's document picker and background work for file creation. Avoid requiring broad storage permissions.
@@ -38,13 +38,13 @@ Use the existing Android UI stack and chart library. Preserve device support and
 
 - [x] Inspect host tools and styling references.
 - [x] Clone active Codeberg upstream into the fitness workspace.
-- [ ] Create GitHub fork and configure remotes.
-- [ ] Commit this plan and create an implementation worktree.
-- [ ] Audit dashboard widgets, heart rate providers, date ranges, and existing exports.
-- [ ] Add tested percentile calculation and daily/weekly/monthly presentation.
-- [ ] Add convenient recorded-data CSV export and export navigation.
-- [ ] Replace overview rings with charts and gauges with linear bars.
-- [ ] Apply OLED theme and high contrast chart styling.
+- [x] Create GitHub fork and configure remotes.
+- [x] Commit this plan and create an implementation worktree.
+- [x] Audit dashboard widgets, heart rate providers, date ranges, and existing exports.
+- [x] Add tested percentile calculation and daily/weekly/monthly presentation.
+- [x] Add convenient recorded-data CSV export and export navigation.
+- [x] Replace overview rings with charts and gauges with linear bars.
+- [x] Apply OLED theme and high contrast chart styling.
 - [ ] Build the debug APK and run focused tests and required checks.
 - [ ] Install and verify in an emulator using clearly identified test data.
 - [ ] Record screenshots, validation results, and any limitations.
@@ -57,3 +57,7 @@ Use the existing Android UI stack and chart library. Preserve device support and
 ## Validation record
 
 Pending implementation. Verify percentile edge cases, selected calendar ranges, CSV correctness, zero/missing data, chart navigation, and dashboard layout on a running emulator. Record real commands and outcomes here.
+
+2026-10-08: Created https://github.com/unmanbearpig/Gadgetbridge and configured Codeberg as `upstream`. Committed the plan as `09a4172bc` and created the `feature/hr-percentiles-oled-dashboard` worktree. Initial mainline debug build passed in 5m 52s. Dedicated `gadgetbridge-fitness` API 31 emulator booted with KVM. Existing exports include database/preferences backup, ZIP backup, and GPX/FIT workout export. Added selected-range UTF-8 sample CSV and daily/range percentile CSV via Android's document picker. Added percentile statistics and trends, chart widgets with saved-layout migration, and shared linear gauge rendering. Fixed dashboard day boundaries to start at local midnight. Validation of the changed app is underway.
+
+2026-10-08: Changed app assembles successfully. First focused test run passed all percentile, CSV, and layout tests. Five rendering tests exposed missing theme attributes in application-only test contexts; added gauge track fallbacks and explicit text coloring during binding. Pixel tests now use Robolectric native graphics. Dark/OLED/cyan are defaults, while explicit theme selections remain available. Revalidating these fixes.

@@ -681,7 +681,7 @@ public class GBApplication extends Application {
     }
 
     public static boolean isDarkThemeEnabled() {
-        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
+        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_dark));
         Resources resources = context.getResources();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
@@ -693,16 +693,16 @@ public class GBApplication extends Application {
     }
 
     public static boolean isAmoledBlackEnabled() {
-        return prefs.getBoolean("pref_key_theme_amoled_black", false);
+        return prefs.getBoolean("pref_key_theme_amoled_black", true);
     }
 
     public static boolean areDynamicColorsEnabled() {
-        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_system));
+        String selectedTheme = prefs.getString("pref_key_theme", context.getString(R.string.pref_theme_value_dark));
         return selectedTheme.equals(context.getString(R.string.pref_theme_value_dynamic));
     }
 
     public static final String PREF_ACCENT_COLOR = "pref_key_accent_color";
-    public static final String PREF_ACCENT_COLOR_DEFAULT = "red";
+    public static final String PREF_ACCENT_COLOR_DEFAULT = "cyan";
 
     /**
      * The ThemeOverlay for the user's chosen accent color preset (Settings > User interface).
@@ -747,7 +747,7 @@ public class GBApplication extends Application {
     public static final String PREF_CONTRASTING_SURFACES = "pref_key_contrasting_surfaces";
 
     public static boolean areContrastingSurfacesEnabled() {
-        return prefs.getBoolean(PREF_CONTRASTING_SURFACES, isDarkThemeEnabled());
+        return prefs.getBoolean(PREF_CONTRASTING_SURFACES, false);
     }
 
     @StyleRes

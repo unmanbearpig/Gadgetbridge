@@ -170,7 +170,7 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
             // Same fill as the stat tiles, so it follows the theme.
             card.setCardBackgroundColor(MaterialColors.getColor(card, R.attr.stat_tile_bg))
             card.radius = 4 * density
-            card.cardElevation = 4 * density
+            card.cardElevation = 0f
         } else {
             card.setCardBackgroundColor(Color.TRANSPARENT)
             card.radius = 0f

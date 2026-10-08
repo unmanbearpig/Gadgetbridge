@@ -7,7 +7,8 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.BodyEnergyWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.CaloriesActiveWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.CaloriesSegmentedWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.DistanceWidget
-import nodomain.freeyourgadget.gadgetbridge.widgets.impl.GoalsWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HeartRateHistoryWidget
+import nodomain.freeyourgadget.gadgetbridge.widgets.impl.ActivityHistoryWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HeartRateWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HrvWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.HydrationWidget
@@ -19,7 +20,6 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.impl.StepsWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.StressBreakdownWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.StressSegmentedWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.StressSimpleWidget
-import nodomain.freeyourgadget.gadgetbridge.widgets.impl.TodayWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxAnyWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxCyclingWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.impl.Vo2MaxRunningWidget
@@ -47,7 +47,8 @@ object WidgetRegistry {
         CaloriesActiveWidget,
         CaloriesSegmentedWidget,
         DistanceWidget,
-        GoalsWidget,
+        HeartRateHistoryWidget,
+        ActivityHistoryWidget,
         HeartRateWidget,
         HrvWidget,
         HydrationWidget,
@@ -60,7 +61,6 @@ object WidgetRegistry {
         StressBreakdownWidget,
         StressSegmentedWidget,
         StressSimpleWidget,
-        TodayWidget,
         Vo2MaxAnyWidget,
         Vo2MaxCyclingWidget,
         Vo2MaxRunningWidget,
