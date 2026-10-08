@@ -154,7 +154,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
         private static final int[] ACCENT_COLOR_SWATCHES_DARK = {
                 0xFFE02F00, 0xFFFF5A47, 0xFFF27C1A,
                 0xFFF5B800, 0xFFA8E02F, 0xFF2FD07A,
-                0xFF1DE9D0, 0xFF22C2F0, 0xFF2A6FE0,
+                0xFF1DE9D0, 0xFF8BDCFB, 0xFF2A6FE0,
                 0xFF5252E0, 0xFF8A3FE6, 0xFFD02866, 0xFFFFFFFF,
         };
         /** The tab_pill value of each accent's Light overlay - matches what light theme users get. */

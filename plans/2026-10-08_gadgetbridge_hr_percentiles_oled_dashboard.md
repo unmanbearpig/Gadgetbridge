@@ -52,9 +52,9 @@ Use the existing Android UI stack and chart library. Preserve device support and
 
 ## Phone data migration
 
-- [ ] Export and validate a full ZIP backup from the original app.
-- [ ] Build and install a separate `Gadgetbridge Fitness` app.
-- [ ] Restore the backup and verify database records, device settings, and charts.
+- [x] Export and validate a full ZIP backup from the original app.
+- [x] Build and install a separate `Gadgetbridge Fitness` app.
+- [x] Restore the backup and verify database records, device settings, and charts.
 
 2026-10-08: The connected phone runs the official Gadgetbridge 0.94.0. Added a `fitness` flavor with package ID `nodomain.freeyourgadget.gadgetbridge.fitness`, a distinct Pebble provider authority, and the `Gadgetbridge Fitness` label so the fork can coexist with the original app. Migration uses Gadgetbridge's full ZIP backup, including database, preferences, device settings, and external files. Personal backups and verification files stay in ignored local build directories.
 
@@ -103,3 +103,9 @@ To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadg
 2026-10-08: Final emulator review passed for the compact statistics, all three percentile tabs, cyan linear bars, and black surfaces. Verified daily export after rotating the document picker. Saved screenshots and synthetic export evidence under `plans/evidence/2026-10-08-gadgetbridge/`. All source changes are committed; merging and pushing the fork is the remaining step.
 
 2026-10-08: Fast-forwarded the main checkout and pushed the implementation to both `master` and `feature/hr-percentiles-oled-dashboard` on the GitHub fork. Preserved the [debug APK](../app/build/outputs/apk/mainline/debug/gadgetbridge-fitness-debug.apk), test reports, and lint reports in the main checkout. APK SHA-256: `440ceee89c537adeb27c6f0bd9eb4293d9438b7cc98891269d59658d6d667bd6`. Shut down the task emulator; its profile retains the installed app and synthetic fixture for reopening.
+
+2026-10-08: Full ZIP export completed on the phone. Copied the backup to the main checkout at `app/build/device-migration/2026-10-08/original-backup.zip`, checked every ZIP entry CRC, and verified SQLite integrity. The local backup folder is restricted to the host user and ignored by Git. The original app remains installed with its data.
+
+2026-10-08: Installed the separate Fitness debug APK and restored the ZIP through the native document picker. SQLite integrity passed after the schema upgrade from 140 to 151. All 169 original application tables match the backup on every original column, including exact row fingerprints, and the device-specific preferences match. Bluetooth permissions were enabled and the paired watch connected successfully; daily HR percentiles render from the imported history. The original app remains installed and stopped.
+
+2026-10-08: The restored global settings selected Dynamic colors, which overrode the fork palette. Switched the installed fork to OLED Dark and Cyan. User review also found that the accent picker used AppCompat's gray dialog background. Added a shared black OLED dialog overlay for native and Material dialogs and aligned the picker's cyan swatch with `#8bdcfb`. Rebuilding and verifying those changes on the phone. The first Fitness build and lint passed.

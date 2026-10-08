@@ -218,6 +218,9 @@
 
     <!-- black theme -->
     <style name="GadgetbridgeThemeBlack" parent="GadgetbridgeThemeDark">
+        <item name="alertDialogTheme">@style/ThemeOverlay.App.OledDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.OledDialog</item>
+        <item name="android:colorBackgroundFloating">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
         <item name="colorSurfaceContainerLowest">@android:color/black</item>
         <item name="colorSurfaceContainerLow">@android:color/black</item>
@@ -234,6 +237,16 @@
         <item name="stat_tile_border">@color/stat_tile_border_amoled</item>
         <item name="android:navigationBarColor">@android:color/black</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+    </style>
+
+    <style name="ThemeOverlay.App.OledDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:colorBackgroundFloating">@android:color/black</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="colorSurface">@android:color/black</item>
+        <item name="colorSurfaceContainerHigh">@android:color/black</item>
+        <item name="colorSurfaceContainerHighest">@android:color/black</item>
+        <item name="elevationOverlayEnabled">false</item>
     </style>
 
     <!-- Material 3 dynamic color (Material You) themes -->
