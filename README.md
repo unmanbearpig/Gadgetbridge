@@ -1,4 +1,35 @@
-Gadgetbridge is hosted on [codeberg.org](https://codeberg.org/Freeyourgadget/Gadgetbridge/).
+# Gadgetbridge Fitness
+
+A personal fitness fork of [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge/) with heart rate percentiles, easier exports, and an OLED dashboard.
+
+## Changes in this fork
+
+- Heart rate charts and statistics show P5, P25, P50, P75, and P95 with the valid sample count for day, week, and month views. Week and month retain upstream's trailing 7-day and 30-day periods.
+- Export recorded samples or percentile summaries as CSV for the selected period through Android's document picker. The dashboard also provides access to the existing full database and ZIP exports.
+- Heart rate and hourly step charts replace the first two dashboard rings. Metric gauges use linear bars.
+- Pure black OLED backgrounds, white text, and the cyan accent `#8bdcfb`. Dialogs and panels stay black; date controls, export actions, and buttons share an 8dp rounded outline style without bright fills. Selected chart tabs use cyan underlines.
+- A separate `fitness` build installs as **Gadgetbridge Fitness**, with package ID `nodomain.freeyourgadget.gadgetbridge.fitness`, alongside the original app.
+- Existing full ZIP backups can be restored through Gadgetbridge's native data management screen, including recorded history and device settings.
+
+Percentiles use linear interpolation over valid recorded samples. Missing and invalid readings are excluded. These describe the sample distribution; recording frequency affects the result.
+
+## Download and build the fork
+
+[Download the Fitness APK](https://github.com/unmanbearpig/Gadgetbridge/releases/download/fitness-2026-10-08/gadgetbridge-fitness-debug.apk) · [Release notes](https://github.com/unmanbearpig/Gadgetbridge/releases/tag/fitness-2026-10-08)
+
+The published APK is a debug build of version `0.94.0-fitness`. The original app remains installed when you install Fitness. Android permissions must be granted separately. If an imported backup selects a different theme, choose Dark, enable the black background, and select Cyan under User interface.
+
+With Java 21 and the Android SDK configured, build with:
+
+```bash
+./gradlew :app:assembleFitnessDebug
+```
+
+The [implementation plan and verification record](plans/2026-10-08_gadgetbridge_hr_percentiles_oled_dashboard.md) includes emulator screenshots and export checks. The initial implementation passed 21 focused tests and Android lint. The Fitness build passed build and lint checks; the final control styling was built and verified on an emulator and a Samsung phone. Phone restore verification matched every original column in all 169 original application tables.
+
+## Upstream project
+
+The original Gadgetbridge project is hosted on [Codeberg](https://codeberg.org/Freeyourgadget/Gadgetbridge/). Its documentation follows below.
 
 
 Gadgetbridge
