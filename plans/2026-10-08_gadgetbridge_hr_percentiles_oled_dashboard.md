@@ -48,7 +48,7 @@ Use the existing Android UI stack and chart library. Preserve device support and
 - [x] Build the debug APK and run focused tests and required checks.
 - [x] Install and verify in an emulator using clearly identified test data.
 - [x] Record screenshots, validation results, and any limitations.
-- [ ] Merge committed work back to the main checkout and push the fork.
+- [x] Merge committed work back to the main checkout and push the fork.
 
 ## Progress
 
@@ -93,3 +93,5 @@ To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadg
 2026-10-08: First lint run found four pre-existing upstream errors: missing Bluetooth permission handling in Oppo and Sennheiser discovery/bond checks, and two API-28-only line-height attributes in styles shared with API 23. Added denial handling and switched to AppCompat line-height attributes. Compacting HR statistics into plain three-column rows, fitting percentile trends to their actual plotted range, and aligning the bottom date bar with the selected 7/30-day period before final verification.
 
 2026-10-08: Final emulator review passed for the compact statistics, all three percentile tabs, cyan linear bars, and black surfaces. Verified daily export after rotating the document picker. Saved screenshots and synthetic export evidence under `plans/evidence/2026-10-08-gadgetbridge/`. All source changes are committed; merging and pushing the fork is the remaining step.
+
+2026-10-08: Fast-forwarded the main checkout and pushed the implementation to both `master` and `feature/hr-percentiles-oled-dashboard` on the GitHub fork. Preserved the [debug APK](../app/build/outputs/apk/mainline/debug/gadgetbridge-fitness-debug.apk), test reports, and lint reports in the main checkout. APK SHA-256: `440ceee89c537adeb27c6f0bd9eb4293d9438b7cc98891269d59658d6d667bd6`. Shut down the task emulator; its profile retains the installed app and synthetic fixture for reopening.
