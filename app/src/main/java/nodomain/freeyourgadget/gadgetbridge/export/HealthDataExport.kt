@@ -60,11 +60,11 @@ class HealthDataExport(private val fragment: Fragment) {
                             }
                         }
                     }
-                    GB.toast(context, R.string.health_export_success, Toast.LENGTH_LONG, GB.INFO)
+                    GB.toast(fragment.requireContext(), R.string.health_export_success, Toast.LENGTH_LONG, GB.INFO)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    GB.toast(GBApplication.getContext(), fragment.getString(R.string.health_export_failed, e.localizedMessage), Toast.LENGTH_LONG, GB.ERROR, e)
+                    GB.toast(fragment.requireContext(), fragment.getString(R.string.health_export_failed, e.localizedMessage), Toast.LENGTH_LONG, GB.ERROR, e)
                 }
             }
         }

@@ -41,7 +41,6 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileData;
-import nodomain.freeyourgadget.gadgetbridge.activities.workouts.StatTileGridUtilKt;
 import nodomain.freeyourgadget.gadgetbridge.activities.workouts.WorkoutValueFormatter;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.devices.SampleProvider;
@@ -97,7 +96,7 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         csvExport = new HealthDataExport(this);
-        TOTAL_DAYS = getArguments() != null ? getArguments().getInt("totalDays") : 0;
+        TOTAL_DAYS = getArguments() != null ? getArguments().getInt("totalDays", 1) : 1;
     }
 
     @Override
@@ -293,6 +292,11 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         return dataSet;
     }
 
+    @Override
+    public Date getStartDate() {
+        return DateTimeUtils.shiftByDays(DateTimeUtils.dayStart(getEndDate()), -(Math.max(1, TOTAL_DAYS) - 1));
+    }
+
     private Pair<Integer, Integer> getStartAndEndTS() {
         Date lastDay = DateTimeUtils.dayStart(getEndDate());
         int startTs = toTimestamp(DateTimeUtils.shiftByDays(lastDay, -(TOTAL_DAYS - 1)));
@@ -336,7 +340,31 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
             ));
         }
 
-        StatTileGridUtilKt.addStatTileGrid(hrStatsContainer, requireContext(), stats, 0);
+        final int padding = Math.round(12 * getResources().getDisplayMetrics().density);
+        for (int index = 0; index < stats.size(); index += 3) {
+            final LinearLayout row = new LinearLayout(requireContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            for (int column = 0; column < 3; column++) {
+                final LinearLayout cell = new LinearLayout(requireContext());
+                cell.setOrientation(LinearLayout.VERTICAL);
+                cell.setPadding(0, padding, padding / 2, padding);
+                if (index + column < stats.size()) {
+                    final StatTileData stat = stats.get(index + column);
+                    final TextView value = new TextView(requireContext());
+                    value.setText(stat.getValue());
+                    value.setTextSize(20f);
+                    value.setTextColor(TEXT_COLOR);
+                    final TextView label = new TextView(requireContext());
+                    label.setText(stat.getLabel());
+                    label.setTextSize(12f);
+                    label.setTextColor(CHART_TEXT_COLOR);
+                    cell.addView(value);
+                    cell.addView(label);
+                }
+                row.addView(cell, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            }
+            hrStatsContainer.addView(row);
+        }
 
         hrLineChart.getAxisLeft().setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
         hrLineChart.getAxisRight().setAxisMinimum(HeartRateUtils.getInstance().getMinHeartRate());
@@ -376,7 +404,7 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
 
     private void setOneDayData(HeartRateData data, int startTs, int endTs) {
         Date date = new Date((long) endTs * 1000);
-        String formattedDate = new SimpleDateFormat("E, MMM dd").format(date);
+        String formattedDate = new SimpleDateFormat("E, MMM dd", Locale.getDefault()).format(date);
         mDateView.setText(formattedDate);
 
         HeartRateUtils heartRateUtilsInstance = HeartRateUtils.getInstance();
@@ -424,7 +452,8 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         if (stats.getCount() > 0) {
             for (int i = 0; i < PERCENTILES.length; i++) {
                 final LimitLine line = new LimitLine((float) stats.getPercentile(PERCENTILES[i]),
-                        getString(R.string.hr_percentile_label, PERCENTILES[i]));
+                        (PERCENTILES[i] == 5 || PERCENTILES[i] == 50 || PERCENTILES[i] == 95)
+                                ? getString(R.string.hr_percentile_label, PERCENTILES[i]) : "");
                 line.setLineWidth(1f);
                 line.enableDashedLine(8f, 6f, 0f);
                 line.setLineColor(percentileColors[i]);
@@ -481,6 +510,19 @@ public class HeartRatePeriodFragment extends AbstractChartFragment<HeartRatePeri
         hrLineChart.getAxisRight().removeAllLimitLines();
         final List<HeartRatePercentiles> daily = new ArrayList<>();
         for (HeartRateData day : samples) daily.add(percentiles(day.samples));
+        double lower = Double.POSITIVE_INFINITY;
+        double upper = Double.NEGATIVE_INFINITY;
+        for (HeartRatePercentiles day : daily) {
+            if (day.getCount() == 0) continue;
+            lower = Math.min(lower, day.getPercentile(5));
+            upper = Math.max(upper, day.getPercentile(95));
+        }
+        if (Double.isFinite(lower)) {
+            hrLineChart.getAxisLeft().setAxisMinimum((float) Math.max(0, lower - 10));
+            hrLineChart.getAxisRight().setAxisMinimum((float) Math.max(0, lower - 10));
+            hrLineChart.getAxisLeft().setAxisMaximum((float) upper + 10);
+            hrLineChart.getAxisRight().setAxisMaximum((float) upper + 10);
+        }
         for (int p = 0; p < PERCENTILES.length; p++) {
             List<Entry> entries = new ArrayList<>();
             for (int day = 0; day <= daily.size(); day++) {

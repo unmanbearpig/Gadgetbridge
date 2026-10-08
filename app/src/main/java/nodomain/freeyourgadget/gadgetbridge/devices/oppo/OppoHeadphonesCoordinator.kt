@@ -58,8 +58,12 @@ abstract class OppoHeadphonesCoordinator : AbstractBLClassicDeviceCoordinator() 
 
     override fun supports(candidate: GBDeviceCandidate): Boolean {
         if (!super.supports(candidate)) return false
-        val majorDeviceClass = candidate.device?.bluetoothClass?.majorDeviceClass
-        return majorDeviceClass == BluetoothClass.Device.Major.AUDIO_VIDEO
+        return try {
+            val majorDeviceClass = candidate.device?.bluetoothClass?.majorDeviceClass
+            majorDeviceClass == BluetoothClass.Device.Major.AUDIO_VIDEO
+        } catch (_: SecurityException) {
+            false
+        }
     }
 
     override fun getBatteryConfig(device: GBDevice): Array<BatteryConfig> = arrayOf(

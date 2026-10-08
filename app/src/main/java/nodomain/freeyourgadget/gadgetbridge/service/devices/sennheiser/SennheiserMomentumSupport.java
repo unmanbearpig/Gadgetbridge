@@ -115,7 +115,12 @@ public class SennheiserMomentumSupport extends AbstractHeadphoneBTBRDeviceSuppor
      * bonded.
      */
     boolean isBonded() {
-        return getBluetoothAdapter().getRemoteDevice(getDevice().getAddress()).getBondState() == BluetoothDevice.BOND_BONDED;
+        try {
+            return getBluetoothAdapter().getRemoteDevice(getDevice().getAddress()).getBondState() == BluetoothDevice.BOND_BONDED;
+        } catch (SecurityException e) {
+            LOG.warn("Cannot check headset bond without Bluetooth permission", e);
+            return false;
+        }
     }
 
     @Override
