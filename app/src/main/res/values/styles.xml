@@ -221,7 +221,6 @@
         <item name="buttonStyle">@style/Widget.App.Button</item>
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button</item>
-        <item name="materialButtonTextButtonStyle">@style/Widget.App.Button</item>
         <item name="colorAccent">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="colorSecondary">?attr/colorPrimary</item>
