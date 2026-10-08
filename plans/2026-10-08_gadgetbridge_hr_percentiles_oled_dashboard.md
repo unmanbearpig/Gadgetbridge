@@ -55,6 +55,7 @@ Use the existing Android UI stack and chart library. Preserve device support and
 - [x] Export and validate a full ZIP backup from the original app.
 - [x] Build and install a separate `Gadgetbridge Fitness` app.
 - [x] Restore the backup and verify database records, device settings, and charts.
+- [x] Apply black dialog backgrounds and consistent rounded outlined controls, then install and verify the update on the phone.
 
 2026-10-08: The connected phone runs the official Gadgetbridge 0.94.0. Added a `fitness` flavor with package ID `nodomain.freeyourgadget.gadgetbridge.fitness`, a distinct Pebble provider authority, and the `Gadgetbridge Fitness` label so the fork can coexist with the original app. Migration uses Gadgetbridge's full ZIP backup, including database, preferences, device settings, and external files. Personal backups and verification files stay in ignored local build directories.
 
@@ -85,8 +86,10 @@ Screenshots use Gadgetbridge's built-in synthetic test device. They do not conta
 - [Weekly HR](evidence/2026-10-08-gadgetbridge/hr-week.png)
 - [Monthly HR](evidence/2026-10-08-gadgetbridge/hr-month.png)
 - [Synthetic monthly percentile export](evidence/2026-10-08-gadgetbridge/synthetic-month-percentiles.csv)
+- [Black accent picker and rounded dialog action](evidence/2026-10-08-gadgetbridge/oled-accent-picker.png)
+- [Matching outlined export and date controls](evidence/2026-10-08-gadgetbridge/hr-outlined-controls.png)
 
-No physical wearable was paired during this task. Percentiles describe recorded samples, so devices with different recording frequencies can produce different sample distributions. Week and month preserve upstream's rolling 7/30-day windows. Explicit existing theme selections remain available; new installs default to dark OLED with cyan accents.
+Initial emulator verification used a synthetic device. Phone verification later confirmed that the paired watch connects and the charts render imported history. Percentiles describe recorded samples, so devices with different recording frequencies can produce different sample distributions. Week and month preserve upstream's rolling 7/30-day windows. Explicit existing theme selections remain available; new installs default to dark OLED with cyan accents.
 
 The original mainline debug APK uses upstream's application ID and the local debug signing certificate. The Fitness variant described below has a separate application ID for installation alongside the original app. Build outputs and reports are local artifacts, not committed binaries.
 
@@ -112,4 +115,6 @@ To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadg
 
 2026-10-08: User requested consistent buttons without bright fills. Consolidated OLED action buttons, export actions, dialog actions, and compact date controls into the same 8dp rounded outline style with transparent backgrounds, cyan foregrounds, and restrained borders. Disabled controls keep the same background. Removed filled category-tab indicators in favor of cyan underlines. Verifying the final style on the installed phone app.
 
-2026-10-08: OLED dialog changes passed the Fitness debug build and lint. The subsequent button-only resource changes passed a fresh Fitness debug build. The updated APK is available at `app/build/outputs/apk/fitness/debug/gadgetbridge-fitness-debug.apk`, SHA-256 `92f2e3b04afe55cb36941380950c143a28ec0df8321af641ca4df2679b57fd48`. The phone disconnected before this final style update could be installed; the first Fitness build remains installed with the restored data. Awaiting reconnection and checking the final style on the dedicated test emulator in the meantime.
+2026-10-08: OLED dialog changes passed the Fitness debug build and lint. The subsequent button-only resource changes passed a fresh Fitness debug build. Installed the final update after the phone reconnected and USB debugging was authorized. The installed APK matches `app/build/outputs/apk/fitness/debug/gadgetbridge-fitness-debug.apk`, SHA-256 `92f2e3b04afe55cb36941380950c143a28ec0df8321af641ca4df2679b57fd48`. Verified the black accent picker, rounded outlined dialog action, matching date/export controls, and HR dashboard with imported data on the phone. Verified the same controls on the dedicated emulator using only synthetic data and saved the two screenshots above.
+
+2026-10-08: The original app and full backup remain available. Android granted Bluetooth connect/scan and notification posting permissions to Fitness. Optional notification-listener, contacts, location, and other permissions were not transferred; Android may still show the optional permission screen on startup. A consistent SQLite backup of the verified schema-151 restore is available locally at `app/build/device-migration/2026-10-08/analytics-snapshot.sqlite` for the separately coordinated data explorer work. Personal databases, backups, and phone screenshots are excluded from Git.
