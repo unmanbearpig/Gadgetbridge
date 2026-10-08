@@ -218,6 +218,14 @@
 
     <!-- black theme -->
     <style name="GadgetbridgeThemeBlack" parent="GadgetbridgeThemeDark">
+        <item name="buttonStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonTextButtonStyle">@style/Widget.App.Button</item>
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorSecondary">?attr/colorPrimary</item>
+        <item name="colorOnSecondary">?attr/colorOnPrimary</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.App.OledDialog</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.OledDialog</item>
         <item name="android:colorBackgroundFloating">@android:color/black</item>
@@ -240,6 +248,9 @@
     </style>
 
     <style name="ThemeOverlay.App.OledDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button.Dialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button.Dialog</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.App.Button.Dialog</item>
         <item name="android:colorBackground">@android:color/black</item>
         <item name="android:colorBackgroundFloating">@android:color/black</item>
         <item name="android:windowBackground">@android:color/black</item>
@@ -569,13 +580,14 @@
         <item name="android:background">?attr/tab_bar_bg</item>
         <item name="tabMode">scrollable</item>
         <item name="tabGravity">start</item>
-        <item name="tabIndicator">@drawable/tab_indicator_pill</item>
-        <item name="tabIndicatorColor">?attr/tab_pill</item>
-        <item name="tabIndicatorGravity">stretch</item>
+        <item name="tabIndicator">@drawable/subtab_indicator_bar</item>
+        <item name="tabIndicatorColor">?attr/subtab_active</item>
+        <item name="tabIndicatorGravity">bottom</item>
+        <item name="tabIndicatorHeight">3dp</item>
         <item name="tabIndicatorFullWidth">true</item>
         <item name="tabIndicatorAnimationMode">elastic</item>
-        <item name="tabTextColor">@color/tab_text_pill</item>
-        <item name="tabSelectedTextColor">?attr/tab_pill_on</item>
+        <item name="tabTextColor">@color/subtab_text_pill</item>
+        <item name="tabSelectedTextColor">?attr/subtab_active</item>
         <item name="tabTextAppearance">@style/TextAppearance.App.Tab</item>
         <item name="tabRippleColor">@null</item>
         <item name="tabUnboundedRipple">false</item>
@@ -624,15 +636,32 @@
         <item name="rippleColor">?attr/subtab_pill</item>
     </style>
 
-    <!-- Date-step pill buttons (charts date bar, dashboard day arrows) -->
+    <!-- Shared action button treatment, including compact date controls. -->
+    <style name="Widget.App.Button" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">8dp</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">@color/button_foreground</item>
+        <item name="iconTint">@color/button_foreground</item>
+        <item name="strokeColor">@color/button_outline</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="rippleColor">#148BDCFB</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="elevation">0dp</item>
+    </style>
+    <style name="Widget.App.Button.Dialog" parent="Widget.App.Button">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+
     <style name="TextAppearance.App.DateLabel" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">?attr/datestep_label</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <!-- Base: tonal dark pill, chevron on the start side -->
-    <style name="Widget.App.DateStep" parent="Widget.Material3.Button.TonalButton">
+    <!-- Compact outlined button, chevron on the start side. -->
+    <style name="Widget.App.DateStep" parent="Widget.App.Button">
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:insetTop">0dp</item>
@@ -641,21 +670,14 @@
         <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
-        <item name="cornerRadius">18dp</item>
-        <item name="backgroundTint">?attr/datestep_bg</item>
-        <item name="iconTint">?attr/datestep_icon</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">3dp</item>
         <item name="iconSize">16dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">?attr/datestep_caption</item>
         <item name="android:letterSpacing">0.04</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="rippleColor">#33FFFFFF</item>
-        <item name="android:stateListAnimator">@null</item>
-        <item name="strokeWidth">0dp</item>
     </style>
 
     <!-- Chevron on the end side (right-hand group) -->
@@ -663,12 +685,7 @@
         <item name="iconGravity">textEnd</item>
     </style>
 
-    <!-- Day buttons: filled -->
-    <style name="Widget.App.DateStep.Primary">
-        <item name="backgroundTint">?attr/datestep_primary_bg</item>
-        <item name="iconTint">?attr/datestep_primary_icon</item>
-        <item name="android:textColor">?attr/datestep_primary_caption</item>
-    </style>
+    <style name="Widget.App.DateStep.Primary" parent="Widget.App.DateStep" />
     <style name="Widget.App.DateStep.Primary.End" parent="Widget.App.DateStep.Primary">
         <item name="iconGravity">textEnd</item>
     </style>
