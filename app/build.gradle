@@ -176,6 +176,15 @@ android {
             //versionNameSuffix ""
         }
 
+        fitness {
+            dimension "device_type"
+            applicationIdSuffix ".fitness"
+            versionNameSuffix "-fitness"
+            manifestPlaceholders = [
+                appAuthRedirectScheme: "nodomain.freeyourgadget.gadgetbridge.fitness"
+            ]
+        }
+
         banglejs {
             dimension "device_type"
             applicationId "com.espruino.gadgetbridge"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string translatable="false" name="pebble_content_provider">nodomain.freeyourgadget.gadgetbridge.fitness.pebble.provider</string>
+    <string translatable="false" name="app_name">Gadgetbridge Fitness</string>
+    <string translatable="false" name="title_activity_controlcenter">Gadgetbridge Fitness</string>
+    <string translatable="false" name="about_activity_title">Gadgetbridge Fitness</string>
+    <string translatable="false" name="about_description">@string/about_description_generic</string>
+    <string translatable="false" name="gadgetbridge_running">Gadgetbridge Fitness is running</string>
+</resources>

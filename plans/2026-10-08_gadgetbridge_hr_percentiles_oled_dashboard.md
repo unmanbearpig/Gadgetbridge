@@ -50,6 +50,14 @@ Use the existing Android UI stack and chart library. Preserve device support and
 - [x] Record screenshots, validation results, and any limitations.
 - [x] Merge committed work back to the main checkout and push the fork.
 
+## Phone data migration
+
+- [ ] Export and validate a full ZIP backup from the original app.
+- [ ] Build and install a separate `Gadgetbridge Fitness` app.
+- [ ] Restore the backup and verify database records, device settings, and charts.
+
+2026-10-08: The connected phone runs the official Gadgetbridge 0.94.0. Added a `fitness` flavor with package ID `nodomain.freeyourgadget.gadgetbridge.fitness`, a distinct Pebble provider authority, and the `Gadgetbridge Fitness` label so the fork can coexist with the original app. Migration uses Gadgetbridge's full ZIP backup, including database, preferences, device settings, and external files. Personal backups and verification files stay in ignored local build directories.
+
 ## Progress
 
 2026-10-08: Cloned current upstream. GitHub's upstream mirror is archived, so the fork will use the current Codeberg source. Found Android SDK platforms through API 37, existing emulator images, a Java 21 toolchain, and KVM. Both styling references use DM Sans, pure black backgrounds, bright text, sparse borders, and chart-first layouts. The local job-search theme supplies the cyan accent `#8bdcfb` and muted text `#b5becb`.
