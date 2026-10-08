@@ -45,9 +45,9 @@ Use the existing Android UI stack and chart library. Preserve device support and
 - [x] Add convenient recorded-data CSV export and export navigation.
 - [x] Replace overview rings with charts and gauges with linear bars.
 - [x] Apply OLED theme and high contrast chart styling.
-- [ ] Build the debug APK and run focused tests and required checks.
-- [ ] Install and verify in an emulator using clearly identified test data.
-- [ ] Record screenshots, validation results, and any limitations.
+- [x] Build the debug APK and run focused tests and required checks.
+- [x] Install and verify in an emulator using clearly identified test data.
+- [x] Record screenshots, validation results, and any limitations.
 - [ ] Merge committed work back to the main checkout and push the fork.
 
 ## Progress
@@ -56,7 +56,33 @@ Use the existing Android UI stack and chart library. Preserve device support and
 
 ## Validation record
 
-Pending implementation. Verify percentile edge cases, selected calendar ranges, CSV correctness, zero/missing data, chart navigation, and dashboard layout on a running emulator. Record real commands and outcomes here.
+The final mainline debug build, 21 focused tests, and Android lint passed. Lint reports 1,424 existing warnings and uses upstream's existing baseline. No new error suppressions or baseline entries were added.
+
+Validation command, with Java 21 and `ANDROID_HOME=/home/unmbp/Android/Sdk`:
+
+```bash
+./gradlew :app:assembleMainlineDebug :app:testMainlineDebugUnitTest \
+  --tests '*HeartRatePercentilesTest' --tests '*HealthCsvExporterTest' \
+  --tests '*HeartRateWidgetTest' --tests '*WidgetLayoutStoreTest' \
+  --tests '*GaugeDrawerTest' --tests '*HeartRatePeriodFragmentTest' \
+  :app:lintMainlineDebug --console=plain
+```
+
+Final combined verification completed in 3m 37s. The APK was installed and run on the dedicated `gadgetbridge-fitness` API 31 emulator at `emulator-5560`. Verified day/week/month tabs, both CSV exports through the document picker, export state across picker rotation, and dashboard access to the existing database/ZIP export screen. Monthly raw CSV sorting, sample count, and all five percentiles agree with the screen and summary CSV.
+
+Screenshots use Gadgetbridge's built-in synthetic test device. They do not contain personal health data:
+
+- [Dashboard](evidence/2026-10-08-gadgetbridge/dashboard.png)
+- [Daily HR](evidence/2026-10-08-gadgetbridge/hr-day.png)
+- [Weekly HR](evidence/2026-10-08-gadgetbridge/hr-week.png)
+- [Monthly HR](evidence/2026-10-08-gadgetbridge/hr-month.png)
+- [Synthetic monthly percentile export](evidence/2026-10-08-gadgetbridge/synthetic-month-percentiles.csv)
+
+No physical wearable was paired during this task. Percentiles describe recorded samples, so devices with different recording frequencies can produce different sample distributions. Week and month preserve upstream's rolling 7/30-day windows. Explicit existing theme selections remain available; new installs default to dark OLED with cyan accents.
+
+The generated debug APK uses upstream's application ID and the local debug signing certificate. Build outputs and reports are local artifacts, not committed binaries.
+
+To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadgetbridge-fitness`. The test fixture and installed APK remain in that profile.
 
 2026-10-08: Created https://github.com/unmanbearpig/Gadgetbridge and configured Codeberg as `upstream`. Committed the plan as `09a4172bc` and created the `feature/hr-percentiles-oled-dashboard` worktree. Initial mainline debug build passed in 5m 52s. Dedicated `gadgetbridge-fitness` API 31 emulator booted with KVM. Existing exports include database/preferences backup, ZIP backup, and GPX/FIT workout export. Added selected-range UTF-8 sample CSV and daily/range percentile CSV via Android's document picker. Added percentile statistics and trends, chart widgets with saved-layout migration, and shared linear gauge rendering. Fixed dashboard day boundaries to start at local midnight. Validation of the changed app is underway.
 
@@ -65,3 +91,5 @@ Pending implementation. Verify percentile edge cases, selected calendar ranges, 
 2026-10-08: All 21 focused tests passed. Verified daily, weekly, and monthly charts on the emulator. Exported monthly summary CSV through the system document picker: 30 daily rows plus one range row. The range contains 36,736 valid observations with P5/P25/P50/P75/P95 of 51/56/72/81/108 bpm, exactly matching the screen. Raw sample CSV also contains 36,736 synthetic records and reproduces the same five percentiles. The built-in test provider intentionally omits some minutes; no readings were filled in.
 
 2026-10-08: First lint run found four pre-existing upstream errors: missing Bluetooth permission handling in Oppo and Sennheiser discovery/bond checks, and two API-28-only line-height attributes in styles shared with API 23. Added denial handling and switched to AppCompat line-height attributes. Compacting HR statistics into plain three-column rows, fitting percentile trends to their actual plotted range, and aligning the bottom date bar with the selected 7/30-day period before final verification.
+
+2026-10-08: Final emulator review passed for the compact statistics, all three percentile tabs, cyan linear bars, and black surfaces. Verified daily export after rotating the document picker. Saved screenshots and synthetic export evidence under `plans/evidence/2026-10-08-gadgetbridge/`. All source changes are committed; merging and pushing the fork is the remaining step.
