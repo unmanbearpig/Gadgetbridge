@@ -88,7 +88,7 @@ Screenshots use Gadgetbridge's built-in synthetic test device. They do not conta
 
 No physical wearable was paired during this task. Percentiles describe recorded samples, so devices with different recording frequencies can produce different sample distributions. Week and month preserve upstream's rolling 7/30-day windows. Explicit existing theme selections remain available; new installs default to dark OLED with cyan accents.
 
-The generated debug APK uses upstream's application ID and the local debug signing certificate. Build outputs and reports are local artifacts, not committed binaries.
+The original mainline debug APK uses upstream's application ID and the local debug signing certificate. The Fitness variant described below has a separate application ID for installation alongside the original app. Build outputs and reports are local artifacts, not committed binaries.
 
 To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadgetbridge-fitness`. The test fixture and installed APK remain in that profile.
 
@@ -111,3 +111,5 @@ To reopen the emulator, run `/home/unmbp/Android/Sdk/emulator/emulator -avd gadg
 2026-10-08: The restored global settings selected Dynamic colors, which overrode the fork palette. Switched the installed fork to OLED Dark and Cyan. User review also found that the accent picker used AppCompat's gray dialog background. Added a shared black OLED dialog overlay for native and Material dialogs and aligned the picker's cyan swatch with `#8bdcfb`. Rebuilding and verifying those changes on the phone. The first Fitness build and lint passed.
 
 2026-10-08: User requested consistent buttons without bright fills. Consolidated OLED action buttons, export actions, dialog actions, and compact date controls into the same 8dp rounded outline style with transparent backgrounds, cyan foregrounds, and restrained borders. Disabled controls keep the same background. Removed filled category-tab indicators in favor of cyan underlines. Verifying the final style on the installed phone app.
+
+2026-10-08: OLED dialog changes passed the Fitness debug build and lint. The subsequent button-only resource changes passed a fresh Fitness debug build. The updated APK is available at `app/build/outputs/apk/fitness/debug/gadgetbridge-fitness-debug.apk`, SHA-256 `92f2e3b04afe55cb36941380950c143a28ec0df8321af641ca4df2679b57fd48`. The phone disconnected before this final style update could be installed; the first Fitness build remains installed with the restored data. Awaiting reconnection and checking the final style on the dedicated test emulator in the meantime.
